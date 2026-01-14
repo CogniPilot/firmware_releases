@@ -1,0 +1,13 @@
+{
+  "board": "mr_mcxn_t1",
+  "app": "rtk-gnss",
+  "latest": {
+    "version": "0.1.0",
+    "date": "2026-01-13T12:00:00Z",
+    "mcuboot_hash": "0000000000000000000000000000000000000000000000000000000000000002",
+    "size": 0,
+    "url": "https://firmware.cognipilot.org/mr_mcxn_t1/rtk-gnss/0.1.0.bin",
+    "changelog": "Initial test release for firmware update system validation"
+  },
+  "previous": []
+}

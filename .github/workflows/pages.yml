@@ -1,0 +1,114 @@
+# GitHub Pages deployment workflow for firmware_releases
+# This workflow deploys the firmware repository to GitHub Pages
+# whenever changes are pushed to the main branch.
+#
+# The repository structure is:
+#   /{board}/{app}/latest.json  - Firmware manifest
+#   /{board}/{app}/{version}.bin - Firmware binary
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Create index page
+        run: |
+          # Create a simple index.html listing all firmware
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CogniPilot Firmware Repository</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 2rem;
+                background: #0d1117;
+                color: #c9d1d9;
+              }
+              h1 { color: #58a6ff; }
+              a { color: #58a6ff; }
+              .board { margin: 1.5rem 0; }
+              .board h2 { color: #8b949e; margin-bottom: 0.5rem; }
+              .app { margin-left: 1.5rem; }
+              code {
+                background: #161b22;
+                padding: 0.2rem 0.4rem;
+                border-radius: 4px;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>CogniPilot Firmware Repository</h1>
+            <p>Firmware binaries for CogniPilot hardware platforms.</p>
+            <p>Manifest URL pattern: <code>https://firmware.cognipilot.org/{board}/{app}/latest.json</code></p>
+            <hr>
+            <h2>Available Firmware</h2>
+            <div id="firmware-list">
+              <!-- Will be populated by JavaScript -->
+              <p>Loading firmware list...</p>
+            </div>
+            <script>
+              // List all available firmware by scanning directories
+              async function loadFirmwareList() {
+                const container = document.getElementById('firmware-list');
+                container.innerHTML = '';
+
+                // Note: GitHub Pages doesn't support directory listing
+                // This is a placeholder - actual firmware will be listed statically
+                // or we can use the GitHub API to list files
+
+                container.innerHTML = '<p>See the <a href="https://github.com/cognipilot/firmware_releases">repository</a> for available firmware.</p>';
+              }
+              loadFirmwareList();
+            </script>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
